@@ -8,8 +8,8 @@ function Navbar() {
         <h1 className="text-xl font-bold">EmpreendaFácil</h1>
         <ul className="flex gap-6">
           <li onClick={() => navigate('/')} className="hover:text-blue-200 cursor-pointer">Início</li>
-          <li className="hover:text-blue-200 cursor-pointer">Sobre</li>
-          <li className="hover:text-blue-200 cursor-pointer">Contato</li>
+          <li onClick={() => navigate('/sobre')} className="hover:text-blue-200 cursor-pointer">Sobre</li>
+          <li onClick={() => navigate('/formulario')} className="hover:text-blue-200 cursor-pointer">Cadastro</li>
         </ul>
       </div>
     </nav>
