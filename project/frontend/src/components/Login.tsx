@@ -1,15 +1,19 @@
 import { useState } from 'react'
-import {signUpUser} from '../client/client.ts'
-import {useNavigate} from 'react-router-dom'
+import {loginUser} from '../client/client.ts'
+import {Navigate} from 'react-router-dom'
 
-function Form() {
-const [nome, setNome] = useState('')
+function LoginForm() {
+
+const isLoggedIn = localStorage.getItem("token")
+if (isLoggedIn){
+    return <Navigate to="/dashboard" replace />;
+}
+
 const [email, setEmail] = useState('')
 const [senha, setSenha] = useState('')
-const [tipo, setTipoEmpresa] = useState('')
-const navigate = useNavigate()
+
 function handleSubmit() {
-  signUpUser({nome: nome,email: email, senha: senha, tipoEmpresa: tipo})
+  return loginUser({email: email, senha: senha})
 }
   return (
     <section className="flex items-center justify-center py-20 px-4">
@@ -20,13 +24,6 @@ function handleSubmit() {
         </h2>
 
         <form className="flex flex-col gap-4">
-
-          <input
-            onChange={(e) => setNome(e.target.value)}
-            type="text"
-            placeholder="Seu nome"
-            className="p-3 border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
-          />
 
           <input
             onChange={(e) => setEmail(e.target.value)}
@@ -41,18 +38,15 @@ function handleSubmit() {
             className="p-3 border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
           />
 
-          <select onChange={(e) => setTipoEmpresa(e.target.value)} className="p-3 border rounded-lg">
-            <option>MEI — Microempreendedor Individual</option>
-            <option>ME — Microempresa</option>
-            <option>EPP — Empresa de Pequeno Porte</option>
-          </select>
-
           <button
             type="submit"
             className="bg-blue-600 text-white py-3 rounded-xl hover:bg-blue-700 transition"
-            onClick={() => {
-              handleSubmit()
-              navigate('/dashboard')
+            onClick={(e) => {
+              e.preventDefault()
+              const resposta = handleSubmit()
+              console.log(resposta)
+              
+              
             }}
            
           >
@@ -65,4 +59,4 @@ function handleSubmit() {
   )
 }
 
-export default Form
+export default LoginForm
