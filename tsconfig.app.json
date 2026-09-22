@@ -23,5 +23,5 @@
     "jsxImportSource": "react",
     "allowSyntheticDefaultImports": true
   },
-  "include": ["frontend/src"]
+  "include": ["src/frontend/src"]
 }

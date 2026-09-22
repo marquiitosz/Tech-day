@@ -10,7 +10,7 @@
     "preview": "vite preview",
     "db:migrate": "sequelize-cli db:migrate",
     "db:migrate:undo": "sequelize-cli db:migrate:undo",
-    "server": "tsx backend/src/server.ts"
+    "server": "tsx src/backend/src/server.ts"
   },
   "dependencies": {
     "bcrypt": "6.0.0",

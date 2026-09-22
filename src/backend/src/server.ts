@@ -21,6 +21,24 @@ interface jwtPayload {
 const mySecretKey = 'SenhaDoNossoSagradoTechDay2026';
 const TOKEN_EXPIRATION = '1h';
 
+function getUserIdFromToken(req: express.Request): string | null {
+  const authorization = req.headers.authorization;
+  const token = authorization?.startsWith('Bearer ')
+    ? authorization.slice(7)
+    : null;
+
+  if (!token) {
+    return null;
+  }
+
+  try {
+    const payload = jwt.verify(token, mySecretKey) as jwtPayload;
+    return payload.id;
+  } catch {
+    return null;
+  }
+}
+
 // CADASTRO / LOGON
 app.post('/logon', async (req, res) => {
   if (!req.body) {
@@ -127,6 +145,30 @@ app.post('/login', async (req, res) => {
   } catch (error) {
     console.error('Erro no login:', error);
     return res.status(500).json({ error: 'Erro ao realizar login, tente novamente!' });
+  }
+});
+
+// CONSULTAR USUÁRIO AUTENTICADO
+app.get('/me', async (req, res) => {
+  const userId = getUserIdFromToken(req);
+
+  if (!userId) {
+    return res.status(401).json({ error: 'Token inválido ou ausente.' });
+  }
+
+  try {
+    const usuario = await UsuarioModel.findByPk(userId, {
+      attributes: { exclude: ['senha'] },
+    });
+
+    if (!usuario) {
+      return res.status(404).json({ error: 'Usuário não encontrado.' });
+    }
+
+    return res.status(200).json(usuario);
+  } catch (error) {
+    console.error('Erro ao buscar usuário autenticado:', error);
+    return res.status(500).json({ error: 'Erro ao buscar usuário.' });
   }
 });
 
