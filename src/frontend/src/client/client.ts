@@ -1,4 +1,4 @@
-import type {userPayload, user, loginPayload} from "../../../types/classes"
+import type {userPayload, user, loginPayload} from "../../../types/tipo"
 
 
 export async function signUpUser(dados: userPayload): Promise<user>{
@@ -12,9 +12,13 @@ export async function signUpUser(dados: userPayload): Promise<user>{
 
     })
     const resposta = await response.json()
-    const token = await resposta.token
+    if (!response.ok) {
+        throw new Error(resposta.error ?? "Não foi possível cadastrar o usuário")
+    }
 
-    localStorage.SetItem("token", token)
+    const token = resposta.token
+
+    localStorage.setItem("token", token)
     window.location.href = "/dashboard"
     return resposta
    

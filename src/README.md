@@ -1,5 +1,24 @@
 # React + TypeScript + Vite
 
+## Banco de dados
+
+Instale as dependências e aplique as migrations antes de iniciar o backend:
+
+```bash
+npm install
+npm run db:migrate
+npm run server
+```
+
+Por padrão, a conexão usa o banco `LOJA` em `localhost`. Esses valores podem ser
+alterados pelas variáveis `DB_HOST`, `DB_NAME`, `DB_USER` e `DB_PASSWORD`.
+
+Para desfazer a última migration:
+
+```bash
+npm run db:migrate:undo
+```
+
 This template provides a minimal setup to get React working in Vite with HMR and some ESLint rules.
 
 Currently, two official plugins are available:

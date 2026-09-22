@@ -1,15 +1,14 @@
-import { useState } from 'react'
+import { useState, type FormEvent } from 'react'
 import {signUpUser} from '../client/client.ts'
-import {useNavigate} from 'react-router-dom'
 
 function Form() {
 const [nome, setNome] = useState('')
 const [email, setEmail] = useState('')
 const [senha, setSenha] = useState('')
 const [tipo, setTipoEmpresa] = useState('')
-const navigate = useNavigate()
-function handleSubmit() {
-  signUpUser({nome: nome,email: email, senha: senha, tipoEmpresa: tipo})
+async function handleSubmit(event: FormEvent<HTMLFormElement>) {
+  event.preventDefault()
+  await signUpUser({nome: nome,email: email, senha: senha, tipoEmpresa: tipo})
 }
   return (
     <section className="flex items-center justify-center py-20 px-4">
@@ -19,7 +18,7 @@ function handleSubmit() {
           Comece sua jornada 🚀
         </h2>
 
-        <form className="flex flex-col gap-4">
+        <form className="flex flex-col gap-4" onSubmit={handleSubmit}>
 
           <input
             onChange={(e) => setNome(e.target.value)}
@@ -31,6 +30,8 @@ function handleSubmit() {
           <input
             onChange={(e) => setEmail(e.target.value)}
             type="email"
+            pattern="^[^@\s]+@[^@\s]+\.[^@\s]+$"
+            required
             placeholder="Seu email"
             className="p-3 border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
           />
@@ -41,20 +42,16 @@ function handleSubmit() {
             className="p-3 border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
           />
 
-          <select onChange={(e) => setTipoEmpresa(e.target.value)} className="p-3 border rounded-lg">
-            <option>MEI — Microempreendedor Individual</option>
-            <option>ME — Microempresa</option>
-            <option>EPP — Empresa de Pequeno Porte</option>
+          <select onChange={(e) => setTipoEmpresa(e.target.value)} className="p-3 border rounded-lg" required>
+            <option value="">Selecione o tipo da empresa</option>
+            <option value="Microempreendedor Individual">MEI — Microempreendedor Individual</option>
+            <option value="Microempresa">ME — Microempresa</option>
+            <option value="Empresa de Pequeno Porte">EPP — Empresa de Pequeno Porte</option>
           </select>
 
           <button
             type="submit"
             className="bg-blue-600 text-white py-3 rounded-xl hover:bg-blue-700 transition"
-            onClick={() => {
-              handleSubmit()
-              navigate('/dashboard')
-            }}
-           
           >
             Enviar
           </button>
