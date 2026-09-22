@@ -1,5 +1,6 @@
 import { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
+import BrandMark from './BrandMark';
 
 function Navbar() {
   const navigate = useNavigate();
@@ -20,12 +21,10 @@ function Navbar() {
       <div className="max-w-7xl mx-auto flex justify-between items-center px-4">
         
         {/* Logo / Título */}
-        <h1 
-          onClick={() => navigate('/')} 
-          className="text-xl font-extrabold bg-gradient-to-r from-blue-400 to-indigo-400 bg-clip-text text-transparent cursor-pointer tracking-tight"
-        >
-          EmpreendaFácil
-        </h1>
+        <button type="button" onClick={() => navigate('/')} className="flex items-center gap-2 cursor-pointer">
+          <BrandMark compact />
+          <span className="hidden text-xl font-extrabold tracking-tight text-white sm:inline">EmpreendaFácil</span>
+        </button>
 
         {/* Links de Navegação */}
         <ul className="flex items-center gap-2 md:gap-4 text-sm font-medium">

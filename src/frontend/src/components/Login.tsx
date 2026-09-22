@@ -1,6 +1,7 @@
 import { useState } from 'react'
 import {loginUser} from '../client/client.ts'
 import {Navigate} from 'react-router-dom'
+import BrandMark from './BrandMark'
 
 function LoginForm() {
   const [email, setEmail] = useState('')
@@ -17,6 +18,9 @@ function LoginForm() {
   return (
     <section className="w-full flex-1 bg-transparent text-slate-100 flex items-center justify-center py-12 px-4">
       <div className="bg-[#13122b]/80 backdrop-blur-sm p-8 rounded-2xl shadow-2xl border border-[#232046] w-full max-w-md">
+        <div className="mb-5 flex justify-center">
+          <BrandMark compact />
+        </div>
 
         <h2 className="text-2xl font-bold text-white mb-6 text-center">
           Comece sua jornada
