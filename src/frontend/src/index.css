@@ -1,2 +1,67 @@
 @import "tailwindcss";
 
+@keyframes brand-flame-top {
+	0%, 100% { transform: translate(0, 0) rotate(-3deg) scale(1); }
+	35% { transform: translate(-4px, -7px) rotate(5deg) scale(1.08, 1.18); }
+	70% { transform: translate(3px, -3px) rotate(-5deg) scale(0.95, 1.06); }
+}
+
+@keyframes brand-flame-bottom {
+	0%, 100% { transform: translate(0, 0) rotate(4deg) scale(1); }
+	35% { transform: translate(4px, 7px) rotate(-6deg) scale(1.08, 1.18); }
+	70% { transform: translate(-3px, 3px) rotate(5deg) scale(0.95, 1.06); }
+}
+
+@keyframes brand-flame-flicker {
+	0%, 100% { transform: translateY(0) scale(1); opacity: 0.9; }
+	50% { transform: translateY(-5px) scale(1.12, 0.88); opacity: 1; }
+}
+
+@keyframes brand-flame-light {
+	0%, 100% { opacity: 0.18; transform: scale(0.86); }
+	50% { opacity: 0.48; transform: scale(1.16); }
+}
+
+.brand-flame-top { animation: brand-flame-top 1.25s ease-in-out infinite; transform-origin: 83px 48px; }
+.brand-flame-bottom { animation: brand-flame-bottom 1.45s ease-in-out infinite; transform-origin: 221px 234px; }
+.brand-flame-core { animation: brand-flame-flicker 0.72s ease-in-out infinite; transform-origin: 83px 43px; }
+.brand-flame-core-bottom { animation-delay: -0.2s; transform-origin: 222px 240px; }
+.brand-flame-tip { animation: brand-flame-flicker 0.55s ease-in-out infinite; transform-origin: center; }
+.brand-flame-tip-bottom { animation-delay: -0.18s; }
+.brand-flame-aura { animation: brand-flame-light 1.05s ease-in-out infinite; transform-origin: 82px 34px; filter: blur(8px); }
+.brand-flame-aura-bottom { animation-delay: -0.35s; transform-origin: 222px 251px; }
+
+@keyframes brand-fire-breathe {
+	0%, 100% { transform: scaleX(0.94) translateY(2px); opacity: 0.74; }
+	50% { transform: scaleX(1.08) translateY(-5px); opacity: 1; }
+}
+
+@keyframes brand-fire-wisp {
+	0%, 100% { transform: translate(0, 5px) rotate(-2deg); opacity: 0.35; }
+	50% { transform: translate(5px, -9px) rotate(5deg); opacity: 0.95; }
+}
+
+@keyframes brand-fire-particle {
+	0% { transform: translateY(8px) scale(0.5); opacity: 0; }
+	30% { opacity: 1; }
+	100% { transform: translate(8px, -34px) scale(1.2); opacity: 0; }
+}
+
+.brand-fire-main { transform-origin: 153px 262px; animation: brand-fire-breathe 1.7s ease-in-out infinite; }
+.brand-fire-side { transform-origin: 130px 260px; animation: brand-fire-breathe 1.25s ease-in-out infinite reverse; }
+.brand-fire-side-right { transform-origin: 180px 260px; animation-delay: -0.4s; }
+.brand-fire-core { transform-origin: 155px 260px; animation: brand-fire-breathe 0.85s ease-in-out infinite; }
+.brand-fire-light { animation: brand-flame-light 1.15s ease-in-out infinite; filter: blur(13px); transform-origin: 150px 166px; }
+.brand-fire-wisps path { animation: brand-fire-wisp 1.4s ease-in-out infinite; transform-origin: center; }
+.brand-fire-wisps path:nth-child(2) { animation-delay: -0.45s; }
+.brand-fire-wisps path:nth-child(3) { animation-delay: -0.8s; }
+.brand-fire-particles circle { animation: brand-fire-particle 1.8s ease-out infinite; }
+.brand-fire-particles circle:nth-child(2n) { animation-delay: -0.7s; }
+.brand-fire-particles circle:nth-child(3n) { animation-delay: -1.2s; }
+.brand-center-light { animation: brand-center-pulse 2.2s ease-in-out infinite; filter: blur(10px) drop-shadow(0 0 22px rgba(34, 211, 238, 0.8)) drop-shadow(0 0 28px rgba(168, 85, 247, 0.65)); transform-origin: 150px 150px; }
+
+@keyframes brand-center-pulse {
+	0%, 100% { opacity: 0.42; transform: scale(0.88); }
+	50% { opacity: 0.92; transform: scale(1.12); }
+}
+

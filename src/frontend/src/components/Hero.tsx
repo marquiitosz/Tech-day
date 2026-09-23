@@ -24,7 +24,7 @@ function Hero() {
           </button>
         </div>
         <div className="relative z-10 shrink-0 md:-mr-4">
-          <BrandMark />
+          <BrandMark variant="hero" framed={false} />
         </div>
       </div>
     </section>

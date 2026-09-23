@@ -22,7 +22,7 @@ function Navbar() {
         
         {/* Logo / Título */}
         <button type="button" onClick={() => navigate('/')} className="flex items-center gap-2 cursor-pointer">
-          <BrandMark compact />
+          <BrandMark compact variant="hero" />
           <span className="hidden text-xl font-extrabold tracking-tight text-white sm:inline">EmpreendaFácil</span>
         </button>
 
