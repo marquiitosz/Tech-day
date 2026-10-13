@@ -5,6 +5,7 @@ import jwt from 'jsonwebtoken';
 import type {userPayload, loginPayload } from '../../types/tipo';
 import { ValidationError } from 'sequelize';
 import { UsuarioModel, initDatabase } from '../../repository/persistency';
+import { chatbotRouter } from './chatbot/chatbotController';
 
 const app = express();
 app.use(cors());
@@ -185,6 +186,8 @@ app.get('/users', async (req, res) => {
     return res.status(500).json({ error: 'Erro ao buscar usuários.' });
   }
 });
+
+app.use('/api/chatbot', chatbotRouter);
 
 app.listen(3000, () => {
   console.log('Servidor rodando na porta 3000!');

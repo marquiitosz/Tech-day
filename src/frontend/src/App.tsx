@@ -3,14 +3,12 @@ import Hero from "./components/Hero"
 import Features from "./components/Features"
 import Footer from "./components/Footer"
 import { BrowserRouter, Navigate, Routes, Route } from "react-router-dom"
-import Form from "./components/Form"
 import Sobre from "./components/Sobre"
-import Dashboard from "./components/Dashboard"
-import Login from "./components/Login"
 import Conteudos from "./components/Conteudos"
-import Relatorios from "./components/Relatorios"
 import Historico from "./components/Historico" 
 import Configuracoes from "./components/Configuracoes"
+import { ChatbotWidget } from "./chatbot/ChatbotWidget"
+import { V2Dashboard, V2Relatorios, V2Cadastro, V2Login } from "./v2/presentation/pages"
 
 function Home() {
   return (
@@ -37,18 +35,19 @@ function App() {
         <main className="flex-grow flex flex-col">
           <Routes>
             <Route path="/" element={isLoggedIn ? <Navigate to="/dashboard" replace /> : <Home />} />
-            <Route path="/formulario" element={isLoggedIn ? <Navigate to="/dashboard" replace /> : <Form />} />
+            <Route path="/formulario" element={isLoggedIn ? <Navigate to="/dashboard" replace /> : <V2Cadastro />} />
             <Route path="/sobre" element={<Sobre />} />
             <Route path="/conteudos" element={<Conteudos />} />
-            <Route path="/relatorios" element={<Relatorios />} />
-            <Route path="/historico" element={<Historico />} /> {/* 2. Nova rota do Histórico */}
+            <Route path="/relatorios" element={<V2Relatorios />} />
+            <Route path="/historico" element={<Historico />} />
             <Route path="/configuracoes" element={isLoggedIn ? <Configuracoes /> : <Navigate to="/login" replace />} />
-            <Route path="/dashboard" element={<Dashboard />} />
-            <Route path="/login" element={isLoggedIn ? <Navigate to="/dashboard" replace /> : <Login />} />
+            <Route path="/dashboard" element={<V2Dashboard />} />
+            <Route path="/login" element={isLoggedIn ? <Navigate to="/dashboard" replace /> : <V2Login />} />
           </Routes>
         </main>
         
         <Footer />
+        <ChatbotWidget />
       </div>
     </BrowserRouter>
   )
