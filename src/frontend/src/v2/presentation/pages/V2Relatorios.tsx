@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import '../styles/design-system-v2.css';
-import { FinanceiroRepository } from '../../infrastructure/repositories/FinanceiroRepository';
+import { FinanceiroApiRepository } from '../../infrastructure/repositories/FinanceiroApiRepository';
 import { GerarRelatorioUseCase } from '../../application/financeiro/GerarRelatorioUseCase';
 import { ExportarCsvFinanceiroUseCase } from '../../application/financeiro/ExportarCsvFinanceiroUseCase';
 import { Transacao } from '../../domain/financeiro/Transacao';
@@ -14,7 +14,7 @@ import { UiBadge } from '../components/UiBadge';
 import { UiEmptyState } from '../components/UiEmptyState';
 import { UiModal } from '../components/UiModal';
 
-const financeiroRepo = new FinanceiroRepository();
+const financeiroRepo = new FinanceiroApiRepository();
 const gerarRelatorioUseCase = new GerarRelatorioUseCase(financeiroRepo);
 const exportarCsvUseCase = new ExportarCsvFinanceiroUseCase();
 
@@ -40,10 +40,12 @@ export const V2Relatorios: React.FC = () => {
 
   useEffect(() => {
     let isMounted = true;
-    void gerarRelatorioUseCase.executar().then((dados) => {
-      if (isMounted) {
-        setRelatorio(dados);
-      }
+    void financeiroRepo.sincronizarLocalStorage().then(() => {
+      void gerarRelatorioUseCase.executar().then((dados) => {
+        if (isMounted) {
+          setRelatorio(dados);
+        }
+      });
     });
     return () => {
       isMounted = false;
@@ -125,8 +127,15 @@ export const V2Relatorios: React.FC = () => {
   };
 
   const handleExcluirTransacao = async (id: string) => {
-    await financeiroRepo.remover(id);
-    await recarregarRelatorio();
+    if (!window.confirm('Tem certeza que deseja excluir esta transação?')) {
+      return;
+    }
+    try {
+      await financeiroRepo.remover(id);
+      await recarregarRelatorio();
+    } catch (err) {
+      alert(`Não foi possível excluir a transação: ${(err as Error).message}`);
+    }
   };
 
   const transacoesFiltradas = relatorio

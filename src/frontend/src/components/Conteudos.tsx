@@ -1,4 +1,5 @@
 import { useState } from 'react';
+import { SecaoArtigos } from './artigos/SecaoArtigos';
 
 interface ModuloConteudo {
   id: number;
@@ -351,6 +352,9 @@ export default function Conteudos() {
             </div>
           </div>
         )}
+
+        {/* Seção de Artigos e Dicas Práticas */}
+        <SecaoArtigos />
 
       </div>
     </div>

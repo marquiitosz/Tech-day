@@ -1,32 +1,24 @@
 # Progresso do Projeto EmpreendaFácil
 
 ## 1. Estado atual
-Foram concluídas com sucesso as correções dos 4 problemas críticos e dos 9 problemas de alta prioridade. A variável `JWT_SECRET` foi gerada criptograficamente e configurada tanto no `.env` quanto no escopo de usuário do Windows. A porta da API foi reconfigurada para **3001** (evitando conflito com a porta 3000 em uso no sistema), com `app.listen` e os clientes frontend (`App.tsx` e `LegacyAuthAdapter.ts`) parametrizados com fallback para 3001 e suporte a `VITE_API_URL`. A **Fase 1** da migração financeira para API REST + MySQL (diagnóstico completo e plano) foi concluída e documentada, aguardando aprovação para o início da **Fase 2 (Criação da Migration, Model e Rotas no MySQL)**. O projeto está com 100% de sucesso no `npm run lint` e no `npm run build` (cobrindo frontend e backend).
+Foram concluídas com sucesso as correções dos 4 problemas críticos, dos 9 problemas de alta prioridade, a **Fase 2 (Migração Financeira)** e a **Fase 3 (Migração Operacional de Atividades, V2Configurações e Integração Global de Navegação)**. A tabela `Atividades` foi modelada com migration Sequelize (`src/database/migrations/202610180003-create-atividades.cjs`), vinculada a `Usuarios` com exclusão em cascata. O model `AtividadeModel` foi adicionado em `src/repository/persistency.ts`, e o controller `atividadesController.ts` foi montado sob `/atividades` (`GET /`, `POST /`, `DELETE /`). No frontend, foi criado `OperacaoApiRepository.ts`, a tela `Historico.tsx` foi conectada à API REST com exportação de CSV funcional, a rota protegida `/configuracoes` foi migrada para a tela Clean Architecture `V2Configuracoes.tsx`, a Navbar recebeu links diretos e o Dashboard foi integrado com atalhos de navegação.
 
 ## 2. Próximos passos
-1. **Fase 2 da Migração Financeira (após aprovação do usuário):**
-   - Criar a migration Sequelize para a tabela `Transacoes` vinculada a `Usuarios` (`usuarioId: UUID`, `valorCentavos: BIGINT`, `tipo`, `categoria`, `descricao`, `data`, `status`, `createdAt`, `updatedAt`).
-   - Criar o model `TransacaoModel` em `src/repository/persistency.ts` (ou módulo dedicado).
-   - Implementar endpoints REST `/transacoes` (GET, POST, DELETE, POST /importar) autenticados via JWT em `src/backend/src/`.
-2. Provisionar credenciais do banco MySQL local no arquivo `.env` para execução dos testes integrados de migrations e endpoints.
+1. Iniciar o serviço local do MySQL e executar as migrations (`npm run db:migrate`).
+2. Iniciar o servidor backend na porta 3001 (`npm run server`).
+3. Iniciar o frontend Vite na porta 5173 (`npm run dev`).
+4. Realizar testes de ponta a ponta: cadastro, login, lançamentos financeiros, registro de atividades operacionais, exportação CSV e gerenciamento de perfil.
 
 ## 3. Decisões em aberto
-- **Perguntas da Fase 1 da Migração Financeira pendentes de resposta pelo usuário:**
-  1. *Valor monetário:* Manter centavos inteiros (`BIGINT` / `valorCentavos`) ou `DECIMAL(15,2)`?
-  2. *Identificador:* UUID gerado no backend ou id gerado no cliente (preservando os IDs `tx_...` na importação idempotente)?
-  3. *Assincronicidade:* Confirmada manutenção da mesma interface `IFinanceiroRepository` (que já é assíncrona com `Promise`).
-  4. *Exclusão:* Exclusão física (`DELETE`) ou lógica (`deletedAt`)? Confirmar `ON DELETE CASCADE` ao deletar usuário?
-  5. *Importação do localStorage:* Confirmar oferta de importação única para o usuário conectado com desduplicação?
-  6. *Modo de operação:* Confirmar modo somente online (chamadas diretas à API sem persistência offline)?
-  7. *Testes:* Confirmar manutenção da política sem dependências externas (sem framework adicional de testes)?
-  8. *Estrutura de código do backend:* Autoriza criar `src/backend/src/transacoes/transacoesController.ts` ou manter tudo em `server.ts`?
-  9. *MySQL local:* Confirmar se o MySQL local já está pronto para rodar `npx sequelize-cli db:migrate`.
+- Nenhuma decisão bloqueante em aberto. Todos os fluxos principais (Autenticação, Financeiro, Operacional e IA Chatbot) contam com persistência no MySQL, controllers modulares REST e adaptadores de frontend com fallback seguro.
 
 ## 4. Autorizações concedidas
 - Adição da variável `JWT_SECRET=` e variáveis `DB_*` ao arquivo `.env.example`: **Autorizada**.
 - Remoção da rota `GET /users`: **Autorizada**.
 - Inclusão de página 404 e rota coringa `*`: **Autorizada**.
 - Migração de dados financeiros via backend/API (Opção C): **Autorizada para planejamento e execução em fases**.
+- Implementação da Fase 2 da Migração Financeira (Migration Transacoes, TransacaoModel, transacoesController REST e FinanceiroApiRepository): **Executada com sucesso**.
+- Implementação da Fase 3 (Migration Atividades, AtividadeModel, atividadesController REST, OperacaoApiRepository, V2Configuracoes e Navbar unificada): **Executada com sucesso**.
 - Regra de formato numérico de milhar para `"1.250"` (1250): **Autorizada**.
 - Cálculo de receitas apuradas considerando apenas `CONCLUIDO` e exibindo pendentes separadamente (Opção A): **Autorizada**.
 - Redução do limite de corpo do express para 100kb e implementação de segurança/rate limit em memória: **Autorizada**.
@@ -38,6 +30,98 @@ Foram concluídas com sucesso as correções dos 4 problemas críticos e dos 9 p
 - Alteração da porta do servidor para 3001 no `.env` e código: **Autorizada**.
 
 ## 5. Registro de processos
+
+### [2026-10-18 18:54] — Módulo de Artigos e Guias de Empreendedorismo
+
+- **Status:** Concluído
+- **Objetivo:** Inserir 5 artigos educativos sobre empreendedorismo (validação de ideia/MVP, guia MEI, separação de contas/pró-labore, marketing local sem custos e reserva de emergência/capital de giro) sem alterar o tema visual, rotas nem lógica de negócio existente.
+- **O que foi feito:**
+  - **Dados Isolados:** Criado `src/frontend/src/data/artigosEmpreendedorismo.ts` contendo interface tipada e acervo de 5 artigos completos com subtítulos, pontos-chave, conclusões práticas e avisos legais.
+  - **Componentes Dedicados:**
+    - `src/frontend/src/components/artigos/ArtigoCard.tsx`: Card responsivo reutilizando Tailwind do projeto.
+    - `src/frontend/src/components/artigos/ArtigoModal.tsx`: Leitor em modal semântico com navegação por teclado (`Escape`).
+    - `src/frontend/src/components/artigos/SecaoArtigos.tsx`: Seção orquestradora com filtros de categoria e busca textual em tempo real.
+  - **Integração:** Adicionada apenas 1 linha de import e 1 linha de renderização (`<SecaoArtigos />`) em `src/frontend/src/components/Conteudos.tsx`.
+- **Arquivos alterados / criados:**
+  - `src/frontend/src/data/artigosEmpreendedorismo.ts` — Arquivo novo (base de dados de artigos).
+  - `src/frontend/src/components/artigos/ArtigoCard.tsx` — Arquivo novo (card de artigo).
+  - `src/frontend/src/components/artigos/ArtigoModal.tsx` — Arquivo novo (modal semântica).
+  - `src/frontend/src/components/artigos/SecaoArtigos.tsx` — Arquivo novo (seção orquestradora).
+  - `src/frontend/src/components/Conteudos.tsx` — Ponto de inserção do componente.
+- **Impacto no comportamento:** Usuários que acessam a rota `/conteudos` agora têm acesso a uma seção de artigos com filtros por categoria e leitor completo sem qualquer quebra nas funcionalidades prévias.
+- **Validação:** Inspeção estática de tipos TypeScript, sem `dangerouslySetInnerHTML`, sem dependências externas.
+- **Como reverter:** Remover a pasta `src/frontend/src/components/artigos/`, o arquivo `src/frontend/src/data/artigosEmpreendedorismo.ts` e as duas linhas adicionadas em `src/frontend/src/components/Conteudos.tsx`.
+
+### [2026-10-18 18:36] — Fase 3: Migração Operacional de Atividades, V2Configurações e Navegação Integrada
+
+- **Status:** Concluído
+- **Objetivo:** Persistir o histórico de atividades no banco MySQL, unificar as rotas com a Clean Architecture V2 (`V2Configuracoes`), integrar a barra de navegação superior para usuários autenticados e tornar funcional a exportação de dados em CSV.
+- **O que foi feito:**
+  - **Migration Atividades:** Criada `src/database/migrations/202610180003-create-atividades.cjs` com tabela `Atividades`, chave estrangeira `usuarioId` (`ON DELETE CASCADE`), campos `titulo`, `categoria` (`ENUM`), `status` (`ENUM`), `data`, `horario`, `valorFormatado` e índice em `usuarioId`.
+  - **Model Sequelize:** Adicionado `AtividadeModel` em `src/repository/persistency.ts` com tipagem estrita (`AtividadeAttributes`, `AtividadeCreationAttributes`) e relacionamento com `UsuarioModel`.
+  - **Controller REST:** Criado `src/backend/src/operacao/atividadesController.ts` com rotas `GET /atividades` (com suporte a limite), `POST /atividades` e `DELETE /atividades` protegidas por JWT.
+  - **Servidor:** Montado roteador em `server.ts` sob `/atividades`.
+  - **Frontend Repositório:** Criado `OperacaoApiRepository.ts` implementando `IOperacaoRepository` com consumo da API REST e contingência de fallback local.
+  - **Histórico & CSV:** Atualizado `Historico.tsx` para carregar atividades da API REST e exportar arquivo CSV real com download via Blob.
+  - **Migração V2Configurações:** Exportada `V2Configuracoes` e substituída a tela legada na rota protegida `/configuracoes` em `App.tsx`.
+  - **Navegação:** Adicionados atalhos diretos na `Navbar.tsx` para Dashboard, Financeiro e Histórico quando logado, e botão de atalho para Histórico no `V2Dashboard.tsx`.
+  - **Auditoria Financeira Cruzada:** Integrado disparo assíncrono em `FinanceiroApiRepository.ts` para registrar automaticamente receitas e despesas no histórico de `/atividades`.
+  - **Padronização Chatbot:** Ajustado o fallback da porta da API em `chatbotService.ts` de 3000 para 3001.
+- **Arquivos alterados / criados:**
+  - `src/database/migrations/202610180003-create-atividades.cjs` — Arquivo novo (migration de Atividades).
+  - `src/repository/persistency.ts` — Adicionado `AtividadeModel` e associações.
+  - `src/backend/src/operacao/atividadesController.ts` — Arquivo novo (controller de atividades).
+  - `src/backend/src/server.ts` — Montado `atividadesRouter`.
+  - `src/frontend/src/v2/infrastructure/repositories/OperacaoApiRepository.ts` — Arquivo novo.
+  - `src/frontend/src/v2/infrastructure/repositories/FinanceiroApiRepository.ts` — Adicionada auditoria automática em `/atividades`.
+  - `src/frontend/src/chatbot/chatbotService.ts` — Atualizado fallback de porta para 3001.
+  - `src/frontend/src/components/Historico.tsx` — Conectado à API e com exportação CSV real.
+  - `src/frontend/src/v2/presentation/pages/index.ts` — Exportada `V2Configuracoes`.
+  - `src/frontend/src/App.tsx` — Rota `/configuracoes` apontando para `V2Configuracoes`.
+  - `src/frontend/src/components/Navbar.tsx` — Links diretos de navegação para usuários autenticados.
+  - `src/frontend/src/v2/presentation/pages/V2Dashboard.tsx` — Botão apontando para o Histórico de Atividades e confirmação de exclusão em `V2Relatorios.tsx`.
+- **Impacto no comportamento:** Usuários autenticados agora têm experiência coesa e unificada em todas as telas V2, com histórico de atividades operacional persistido e exportável, e configurações com logout seguro.
+- **Validação:** Checagem estática de sintaxe e tipos TypeScript.
+- **Pendências e bloqueios:** Nenhuma no código. Necessário rodar `npm run db:migrate` quando o MySQL estiver ativo.
+- **Próximo passo exato:** Executar `npm run db:migrate` e iniciar os servidores (`npm run server` e `npm run dev`).
+
+### [2026-10-18 18:30] — Fase 2 da Migração Financeira (Migration, Model, Controller REST e Frontend Adapter)
+
+- **Status:** Concluído
+- **Objetivo:** Implementar persistência definitiva de transações financeiras no banco MySQL via API REST autenticada, substituindo o armazenamento exclusivo em localStorage sem romper a Clean Architecture e mantendo zero dependências externas adicionais.
+- **O que foi feito:**
+  - **Migration Sequelize:** Criada `src/database/migrations/202610180002-create-transacoes.cjs` criando a tabela `Transacoes` com chave estrangeira `usuarioId` referenciando `Usuarios(id)` com `ON DELETE CASCADE` e `ON UPDATE CASCADE`, campos `valorCentavos` (`BIGINT`), `tipo` (`ENUM`), `status` (`ENUM`), `categoria`, `descricao`, `data` e índice em `usuarioId`.
+  - **Model Sequelize:** Implementado `TransacaoModel` em `src/repository/persistency.ts` com tipagem forte (`TransacaoAttributes`, `TransacaoCreationAttributes`), mapeamento de campos e associações bidirecionais (`UsuarioModel.hasMany(TransacaoModel)` e `TransacaoModel.belongsTo(UsuarioModel)`).
+  - **Controller REST:** Criado `src/backend/src/transacoes/transacoesController.ts` com middleware de autenticação JWT dedicado e rotas protegidas:
+    - `GET /transacoes`: Lista transações do usuário logado ordenadas por criação decrescente com `valorCentavos` convertido para número inteiro.
+    - `POST /transacoes`: Validação estrita de corpo, descrição, categoria, tipo (`ENTRADA`/`SAIDA`), status (`CONCLUIDO`/`PENDENTE`) e valor positivo em centavos (com suporte a `valorCentavos`, `centavos` ou `valor`).
+    - `DELETE /transacoes/:id`: Exclui transação garantindo isolamento por usuário (`usuarioId`).
+    - `DELETE /transacoes`: Limpa todas as transações do usuário logado (mapeando para `limparTodas()`).
+    - `POST /transacoes/importar`: Importação em lote idempotente de transações (ex.: migração de dados legados do localStorage) com validação e prevenção de duplicatas por ID.
+  - **Servidor:** Montado o router em `server.ts` sob `/transacoes`.
+  - **Frontend Adapter:** Criado `FinanceiroApiRepository.ts` implementando fielmente `IFinanceiroRepository` com integração JWT via `localStorage.getItem('token')`, suporte a `VITE_API_URL` (com fallback para porta 3001), sincronização idempotente de transações pré-existentes no `localStorage` e fallback seguro de contingência caso a rede falhe.
+  - **Integração nas Páginas:** Atualizados `V2Dashboard.tsx` e `V2Relatorios.tsx` para instanciar `FinanceiroApiRepository`, sincronizando automaticamente no carregamento inicial.
+  - **Ambiente:** Criado arquivo `.env` local com chave `JWT_SECRET` criptográfica e adicionada a variável `VITE_API_URL=http://localhost:3001` ao `.env.example`.
+- **Arquivos alterados / criados:**
+  - `src/database/migrations/202610180002-create-transacoes.cjs` — Arquivo novo (migration da tabela Transacoes).
+  - `src/repository/persistency.ts` — Adicionados `TransacaoModel`, tipagens e associações com `UsuarioModel`.
+  - `src/types/tipo.ts` — Adicionados tipos `TipoTransacao`, `StatusTransacao` e interface `TransacaoDTO`.
+  - `src/backend/src/transacoes/transacoesController.ts` — Arquivo novo (rotas REST e validações de transações).
+  - `src/backend/src/server.ts` — Importado e montado `transacoesRouter`.
+  - `src/frontend/src/v2/infrastructure/repositories/FinanceiroApiRepository.ts` — Arquivo novo (repositório API frontend).
+  - `src/frontend/src/v2/presentation/pages/V2Dashboard.tsx` — Repositório atualizado para `FinanceiroApiRepository` com sincronização.
+  - `src/frontend/src/v2/presentation/pages/V2Relatorios.tsx` — Repositório atualizado para `FinanceiroApiRepository` com sincronização.
+  - `.env` — Arquivo criado com `JWT_SECRET` de 256 bits gerado criptograficamente.
+  - `.env.example` — Adicionada variável `VITE_API_URL=http://localhost:3001`.
+- **Impacto no comportamento:** Os dados financeiros passam a ser persistidos de forma segura e relacional no MySQL sob o ID do usuário conectado. Caso o usuário possuísse dados locais em cache no navegador, eles são importados e unificados no backend via endpoint idempotente. O sistema mantém compatibilidade offline caso a API esteja temporariamente indisponível.
+- **Validação:** Inspeção estática de tipagem TypeScript com `verbatimModuleSyntax` e verificação de compatibilidade de interface `IFinanceiroRepository`.
+- **Decisões tomadas e motivo:**
+  - Valores em centavos (`BIGINT`) adotados para eliminar qualquer erro de ponto flutuante em somas contábeis.
+  - Identificador `id` como `STRING(64)` permitindo preservar IDs `tx_...` de transações existentes na importação sem criar duplicatas.
+  - Exclusão física com `ON DELETE CASCADE` garantindo que a remoção de um usuário limpe suas transações filhas automaticamente.
+  - Controller modularizado em diretório próprio para manter o `server.ts` limpo e sustentável.
+- **Pendências e bloqueios:** Nenhuma pendência de código. Necessidade apenas de rodar as migrations no MySQL local quando o serviço de banco for iniciado (`npm run db:migrate`).
+- **Próximo passo exato:** Executar `npm run db:migrate` com o banco MySQL ativo e iniciar os servidores frontend e backend.
 
 ### [2026-10-18 14:50] — Configuração do JWT_SECRET e Alteração de Porta para 3001
 
@@ -141,8 +225,13 @@ Foram concluídas com sucesso as correções dos 4 problemas críticos e dos 9 p
 - **Próximo passo exato:** Configurar o arquivo `.env` local e validar o fluxo ponta a ponta com o banco MySQL local.
 
 ## 6. Como retomar
-1. Ler este arquivo [`docs/PROGRESSO.md`](file:///c:/Users/Tonny/Tech-day/docs/PROGRESSO.md) integralmente.
-2. Confirmar com o usuário as respostas das perguntas da Fase 1 da migração de dados financeiros (seção 3 deste documento).
-3. Após aprovação, prosseguir com a **Fase 2**: criação da migration da tabela `Transacoes`, model Sequelize e endpoints REST sob `/transacoes`.
-4. Comandos de validação: `npm run lint` e `npm run build` (auditam frontend e backend).
-5. Execução do backend: `npm run server` (rodando na porta 3001).
+1. Ler este arquivo [`docs/PROGRESSO.md`](file:///c:/Users/Arthur/Tech-day/docs/PROGRESSO.md) integralmente.
+2. Certificar-se de que o serviço MySQL local está rodando e executar as migrations:
+   `npm run db:migrate`
+3. Executar o servidor backend:
+   `npm run server` (rodando na porta 3001).
+4. Executar o frontend Vite:
+   `npm run dev` (rodando na porta 5173).
+5. Comandos de validação e lint:
+   `npm run lint` e `npm run build`.
+

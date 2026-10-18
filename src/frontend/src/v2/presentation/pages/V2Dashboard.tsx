@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import '../styles/design-system-v2.css';
-import { FinanceiroRepository } from '../../infrastructure/repositories/FinanceiroRepository';
+import { FinanceiroApiRepository } from '../../infrastructure/repositories/FinanceiroApiRepository';
 import { GerarRelatorioUseCase } from '../../application/financeiro/GerarRelatorioUseCase';
 import { RelatorioConsolidado } from '../../domain/financeiro/RelatorioConsolidado';
 import { ValorMonetario } from '../../domain/financeiro/ValorMonetario';
@@ -9,7 +9,7 @@ import { UiButton } from '../components/UiButton';
 import { UiCard } from '../components/UiCard';
 import { UiBadge } from '../components/UiBadge';
 
-const financeiroRepo = new FinanceiroRepository();
+const financeiroRepo = new FinanceiroApiRepository();
 const gerarRelatorioUseCase = new GerarRelatorioUseCase(financeiroRepo);
 
 export const V2Dashboard: React.FC = () => {
@@ -18,7 +18,9 @@ export const V2Dashboard: React.FC = () => {
   const [nomeUsuario] = useState<string>(() => localStorage.getItem('userName') || 'Empreendedor');
 
   useEffect(() => {
-    void gerarRelatorioUseCase.executar().then((res) => setRelatorio(res));
+    void financeiroRepo.sincronizarLocalStorage().then(() => {
+      void gerarRelatorioUseCase.executar().then((res) => setRelatorio(res));
+    });
   }, []);
 
   const totalEntradas = relatorio ? relatorio.totalEntradas() : ValorMonetario.zero();
@@ -43,9 +45,9 @@ export const V2Dashboard: React.FC = () => {
           <div className="flex gap-3">
             <UiButton
               variant="secondary"
-              onClick={() => navigate('/relatorios')}
+              onClick={() => navigate('/historico')}
             >
-              Versão Clássica
+              Histórico de Atividades
             </UiButton>
             <UiButton
               variant="primary"

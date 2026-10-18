@@ -7,9 +7,8 @@ import { BrowserRouter, Navigate, Routes, Route } from "react-router-dom"
 import Sobre from "./components/Sobre"
 import Conteudos from "./components/Conteudos"
 import Historico from "./components/Historico" 
-import Configuracoes from "./components/Configuracoes"
 import { ChatbotWidget } from "./chatbot/ChatbotWidget"
-import { V2Dashboard, V2Relatorios, V2Cadastro, V2Login } from "./v2/presentation/pages"
+import { V2Dashboard, V2Relatorios, V2Cadastro, V2Login, V2Configuracoes } from "./v2/presentation/pages"
 
 function Home() {
   return (
@@ -109,7 +108,7 @@ function App() {
             <Route path="/conteudos" element={<Conteudos />} />
             <Route path="/relatorios" element={<ProtectedRoute><V2Relatorios /></ProtectedRoute>} />
             <Route path="/historico" element={<ProtectedRoute><Historico /></ProtectedRoute>} />
-            <Route path="/configuracoes" element={<ProtectedRoute><Configuracoes /></ProtectedRoute>} />
+            <Route path="/configuracoes" element={<ProtectedRoute><V2Configuracoes /></ProtectedRoute>} />
             <Route path="/dashboard" element={<ProtectedRoute><V2Dashboard /></ProtectedRoute>} />
             <Route path="/login" element={isLoggedIn ? <Navigate to="/dashboard" replace /> : <V2Login />} />
             <Route path="*" element={<NotFound />} />

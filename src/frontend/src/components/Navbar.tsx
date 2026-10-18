@@ -58,6 +58,25 @@ function Navbar() {
             </button>
           </li>
           {isLoggedIn && (
+            <>
+              <li>
+                <button onClick={() => navigate('/dashboard')} className="px-3 py-1.5 rounded-lg text-slate-300 hover:text-white hover:bg-slate-800/60 transition">
+                  Dashboard
+                </button>
+              </li>
+              <li>
+                <button onClick={() => navigate('/relatorios')} className="px-3 py-1.5 rounded-lg text-slate-300 hover:text-white hover:bg-slate-800/60 transition">
+                  Financeiro
+                </button>
+              </li>
+              <li>
+                <button onClick={() => navigate('/historico')} className="px-3 py-1.5 rounded-lg text-slate-300 hover:text-white hover:bg-slate-800/60 transition">
+                  Histórico
+                </button>
+              </li>
+            </>
+          )}
+          {isLoggedIn && (
             <li className="relative">
               <button
                 type="button"

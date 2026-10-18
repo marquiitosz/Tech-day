@@ -102,7 +102,7 @@ export async function sendMessageToChatbot(userMessage: string): Promise<Chatbot
 
   const endpoint =
     (import.meta.env?.VITE_CHATBOT_API_URL as string | undefined) ||
-    'http://localhost:3000/api/chatbot/message';
+    'http://localhost:3001/api/chatbot/message';
 
   try {
     const controller = new AbortController();

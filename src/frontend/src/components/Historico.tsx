@@ -1,7 +1,10 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
+import { OperacaoApiRepository } from '../v2/infrastructure/repositories/OperacaoApiRepository';
+import { Atividade } from '../v2/domain/operacao/Atividade';
+import type { CategoriaAtividade, StatusAtividade } from '../v2/domain/operacao/Atividade';
 
-interface Atividade {
+interface AtividadeVisual {
   id: string;
   titulo: string;
   categoria: 'Vendas' | 'Clientes' | 'Aulas' | 'Sistema';
@@ -11,7 +14,7 @@ interface Atividade {
   valor?: string;
 }
 
-const dadosHistorico: Atividade[] = [
+const dadosIniciais: AtividadeVisual[] = [
   { id: '#1024', titulo: 'Venda realizada para João Silva', categoria: 'Vendas', data: '22/09/2026', horario: '19:35', status: 'Concluído', valor: 'R$ 250,00' },
   { id: '#1023', titulo: 'Novo cliente cadastrado: Maria Oliveira', categoria: 'Clientes', data: '22/09/2026', horario: '17:40', status: 'Concluído' },
   { id: '#1022', titulo: 'Aula concluída: Gestão Financeira - Módulo 2', categoria: 'Aulas', data: '21/09/2026', horario: '20:15', status: 'Concluído' },
@@ -21,13 +24,79 @@ const dadosHistorico: Atividade[] = [
   { id: '#1018', titulo: 'Aula iniciada: Marketing Digital - Módulo 3', categoria: 'Aulas', data: '18/09/2026', horario: '18:00', status: 'Pendente' },
 ];
 
+const operacaoRepo = new OperacaoApiRepository();
+
+function converterParaVisual(atividades: Atividade[]): AtividadeVisual[] {
+  const mapCategoria: Record<CategoriaAtividade, AtividadeVisual['categoria']> = {
+    VENDAS: 'Vendas',
+    CLIENTES: 'Clientes',
+    CAPACITACAO: 'Aulas',
+    SISTEMA: 'Sistema',
+  };
+
+  const mapStatus: Record<StatusAtividade, AtividadeVisual['status']> = {
+    CONCLUIDO: 'Concluído',
+    PENDENTE: 'Pendente',
+    CANCELADO: 'Cancelado',
+  };
+
+  return atividades.map((a) => ({
+    id: a.id.startsWith('#') ? a.id : `#${a.id.slice(-4)}`,
+    titulo: a.titulo,
+    categoria: mapCategoria[a.categoria] || 'Sistema',
+    data: a.data,
+    horario: a.horario,
+    status: mapStatus[a.status] || 'Concluído',
+    valor: a.valorFormatado,
+  }));
+}
+
 function Historico() {
   const navigate = useNavigate();
   const [busca, setBusca] = useState('');
   const [categoriaFiltro, setCategoriaFiltro] = useState('Todas');
+  const [atividades, setAtividades] = useState<AtividadeVisual[]>(dadosIniciais);
+
+  useEffect(() => {
+    let montado = true;
+    operacaoRepo.listarRecentes().then((remotas) => {
+      if (montado && remotas && remotas.length > 0) {
+        setAtividades(converterParaVisual(remotas));
+      }
+    }).catch(() => {
+      // Fallback para dados prévios se rede falhar
+    });
+
+    return () => {
+      montado = false;
+    };
+  }, []);
+
+  const handleExportarCsv = () => {
+    if (atividadesFiltradas.length === 0) {
+      alert('Nenhuma atividade disponível para exportação.');
+      return;
+    }
+
+    const cabecalho = 'ID;Atividade;Categoria;Data;Horario;Valor;Status\r\n';
+    const linhas = atividadesFiltradas.map((item) =>
+      `"${item.id}";"${item.titulo}";"${item.categoria}";"${item.data}";"${item.horario}";"${item.valor || ''}";"${item.status}"`
+    );
+
+    const conteudoCsv = '\uFEFF' + cabecalho + linhas.join('\r\n');
+    const blob = new Blob([conteudoCsv], { type: 'text/csv;charset=utf-8;' });
+    const url = URL.createObjectURL(blob);
+    const link = document.createElement('a');
+    link.setAttribute('href', url);
+    link.setAttribute('download', `historico-atividades-${new Date().toISOString().slice(0, 10)}.csv`);
+    document.body.appendChild(link);
+    link.click();
+    document.body.removeChild(link);
+    URL.revokeObjectURL(url);
+  };
 
   // Filtragem de dados
-  const atividadesFiltradas = dadosHistorico.filter((item) => {
+  const atividadesFiltradas = atividades.filter((item) => {
     const bateCategoria = categoriaFiltro === 'Todas' || item.categoria === categoriaFiltro;
     const bateBusca = item.titulo.toLowerCase().includes(busca.toLowerCase()) || item.id.toLowerCase().includes(busca.toLowerCase());
     return bateCategoria && bateBusca;
@@ -55,7 +124,10 @@ function Historico() {
           </div>
 
           <div className="flex gap-2">
-            <button className="px-4 py-2 bg-emerald-600 hover:bg-emerald-500 text-white text-sm font-medium rounded-lg transition shadow-lg shadow-emerald-600/20 cursor-pointer">
+            <button 
+              onClick={handleExportarCsv}
+              className="px-4 py-2 bg-emerald-600 hover:bg-emerald-500 text-white text-sm font-medium rounded-lg transition shadow-lg shadow-emerald-600/20 cursor-pointer"
+            >
               Exportar CSV
             </button>
           </div>

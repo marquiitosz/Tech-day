@@ -7,6 +7,8 @@ import type {userPayload, loginPayload } from '../../types/tipo';
 import { ValidationError } from 'sequelize';
 import { UsuarioModel, initDatabase } from '../../repository/persistency';
 import { chatbotRouter } from './chatbot/chatbotController';
+import { transacoesRouter } from './transacoes/transacoesController';
+import { atividadesRouter } from './operacao/atividadesController';
 
 const app = express();
 app.use(cors());
@@ -255,6 +257,8 @@ app.get('/me', async (req, res) => {
 });
 
 app.use('/api/chatbot', chatbotRouter);
+app.use('/transacoes', transacoesRouter);
+app.use('/atividades', atividadesRouter);
 
 const PORT = process.env.PORT || 3001;
 app.listen(PORT, () => {
