@@ -66,7 +66,7 @@ export const V2Cadastro: React.FC = () => {
 
       setSucesso(true);
       setTimeout(() => {
-        navigate('/v2/dashboard');
+        navigate('/dashboard');
       }, 1000);
     } catch (err) {
       setErroGeral((err as Error).message || 'Falha ao cadastrar. Tente novamente.');

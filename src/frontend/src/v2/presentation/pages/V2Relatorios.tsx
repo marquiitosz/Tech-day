@@ -68,7 +68,32 @@ export const V2Relatorios: React.FC = () => {
       return;
     }
 
-    const valorNum = parseFloat(novoValor.replace(',', '.'));
+    const converterValorBrasileiro = (input: string): number => {
+      const limpo = input.trim();
+      if (!limpo) return NaN;
+
+      if (limpo.includes(',')) {
+        const partesVirgula = limpo.split(',');
+        if (partesVirgula.length !== 2) return NaN;
+        const [inteiraComPontos, decimais] = partesVirgula;
+        if (!/^\d{1,2}$/.test(decimais)) return NaN;
+        const inteira = inteiraComPontos.replace(/\./g, '');
+        if (!/^\d+$/.test(inteira)) return NaN;
+        return parseFloat(`${inteira}.${decimais}`);
+      }
+
+      if (/^\d+(\.\d{1,2})?$/.test(limpo)) {
+        return parseFloat(limpo);
+      }
+
+      if (/^\d{1,3}(\.\d{3})+$/.test(limpo)) {
+        return parseFloat(limpo.replace(/\./g, ''));
+      }
+
+      return NaN;
+    };
+
+    const valorNum = converterValorBrasileiro(novoValor);
     if (isNaN(valorNum) || valorNum <= 0) {
       setErroForm('Informe um valor monetário positivo válido.');
       return;
@@ -111,7 +136,9 @@ export const V2Relatorios: React.FC = () => {
     : [];
 
   const totalEntradas = relatorio ? relatorio.totalEntradas() : ValorMonetario.zero();
+  const totalEntradasPendentes = relatorio ? relatorio.totalEntradasPendentes() : ValorMonetario.zero();
   const totalSaidas = relatorio ? relatorio.totalSaidas() : ValorMonetario.zero();
+  const totalSaidasPendentes = relatorio ? relatorio.totalSaidasPendentes() : ValorMonetario.zero();
   const saldoLiquido = relatorio ? relatorio.saldoLiquido() : ValorMonetario.zero();
 
   return (
@@ -148,7 +175,11 @@ export const V2Relatorios: React.FC = () => {
             <p className="ui-metric-value text-emerald-400">
               {totalEntradas.formatar()}
             </p>
-            <span className="ui-metric-badge text-emerald-400">Receitas operacionais</span>
+            <span className="ui-metric-badge text-emerald-400">
+              {totalEntradasPendentes.emReais() > 0
+                ? `+ ${totalEntradasPendentes.formatar()} a receber`
+                : 'Receitas realizadas'}
+            </span>
           </div>
 
           <div className="ui-metric-card border-rose-500/30">
@@ -156,7 +187,11 @@ export const V2Relatorios: React.FC = () => {
             <p className="ui-metric-value text-rose-400">
               {totalSaidas.formatar()}
             </p>
-            <span className="ui-metric-badge text-rose-400">Custos e despesas</span>
+            <span className="ui-metric-badge text-rose-400">
+              {totalSaidasPendentes.emReais() > 0
+                ? `+ ${totalSaidasPendentes.formatar()} a pagar`
+                : 'Custos realizados'}
+            </span>
           </div>
 
           <div

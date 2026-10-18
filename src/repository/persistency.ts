@@ -1,5 +1,6 @@
-import { Sequelize, DataTypes, Model, Optional } from 'sequelize';
-import { user } from "../types/tipo";
+import { Sequelize, DataTypes, Model } from 'sequelize';
+import type { Optional } from 'sequelize';
+import type { user } from "../types/tipo";
 
 const sequelize = new Sequelize(process.env.DB_NAME || 'LOJA', process.env.DB_USER || 'root', process.env.DB_PASSWORD || '', {
   host: process.env.DB_HOST || 'localhost',

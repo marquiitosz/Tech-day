@@ -6,10 +6,17 @@ import type {
 } from '../../domain/auth/IAuthRepository';
 import { Empreendedor } from '../../domain/auth/Empreendedor';
 import { Email, TipoEmpresa } from '../../domain/auth/ValueObjects';
+import type { EnquadramentoEmpresa } from '../../domain/auth/ValueObjects';
 
-const BASE_URL = 'http://localhost:3000';
+const BASE_URL = (import.meta as { env?: { VITE_API_URL?: string } }).env?.VITE_API_URL || 'http://localhost:3001';
 const TOKEN_KEY = 'token';
 const USER_NAME_KEY = 'userName';
+
+const ENUM_TIPO_EMPRESA: Record<EnquadramentoEmpresa, string> = {
+  MEI: 'Microempreendedor Individual',
+  ME: 'Microempresa',
+  EPP: 'Empresa de Pequeno Porte',
+};
 
 export class LegacyAuthAdapter implements IAuthRepository {
   public async cadastrar(dto: CadastroEmpreendedorDTO): Promise<ResultadoAutenticacao> {
@@ -17,7 +24,7 @@ export class LegacyAuthAdapter implements IAuthRepository {
       nome: dto.nome,
       email: dto.email.obterValor(),
       senha: dto.senha.obterValor(),
-      tipoEmpresa: dto.tipoEmpresa.obterDescricao(),
+      tipoEmpresa: ENUM_TIPO_EMPRESA[dto.tipoEmpresa.obterValor()],
     };
 
     const response = await fetch(`${BASE_URL}/logon`, {

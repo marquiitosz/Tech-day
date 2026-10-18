@@ -1,4 +1,5 @@
-import { Router, Request, Response } from 'express';
+import { Router } from 'express';
+import type { Request, Response } from 'express';
 
 export const chatbotRouter = Router();
 
@@ -44,7 +45,36 @@ function sanitizeText(input: unknown): string {
   return input.replace(/[<>]/g, '').trim().slice(0, 500);
 }
 
-chatbotRouter.post('/message', async (req: Request, res: Response) => {
+interface ChatbotRateLimitRecord {
+  count: number;
+  resetTime: number;
+}
+const chatbotRateLimitMap = new Map<string, ChatbotRateLimitRecord>();
+
+function chatbotRateLimiter(maxRequests = 20, windowMs = 60 * 1000) {
+  return (req: Request, res: Response, next: () => void) => {
+    const ip = req.ip || req.socket.remoteAddress || 'unknown';
+    const now = Date.now();
+    const record = chatbotRateLimitMap.get(ip);
+
+    if (!record || now > record.resetTime) {
+      chatbotRateLimitMap.set(ip, { count: 1, resetTime: now + windowMs });
+      return next();
+    }
+
+    if (record.count >= maxRequests) {
+      return res.status(429).json({
+        error: 'Limite de mensagens excedido temporariamente. Aguarde um instante.',
+        reply: 'Você enviou muitas mensagens em um curto período. Por favor, aguarde um minuto para continuar.',
+      });
+    }
+
+    record.count += 1;
+    return next();
+  };
+}
+
+chatbotRouter.post('/message', chatbotRateLimiter(), async (req: Request, res: Response) => {
   try {
     const rawMessage = req.body?.message;
     const cleanMessage = sanitizeText(rawMessage);
@@ -70,10 +100,14 @@ chatbotRouter.post('/message', async (req: Request, res: Response) => {
     // 1. Integração com Google Gemini
     if (geminiKey) {
       try {
-        const geminiEndpoint = `https://generativelanguage.googleapis.com/v1beta/models/${geminiModel}:generateContent?key=${geminiKey}`;
+        const geminiEndpoint = `https://generativelanguage.googleapis.com/v1beta/models/${geminiModel}:generateContent`;
         const response = await fetch(geminiEndpoint, {
           method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
+          signal: AbortSignal.timeout(15000),
+          headers: {
+            'Content-Type': 'application/json',
+            'x-goog-api-key': geminiKey,
+          },
           body: JSON.stringify({
             system_instruction: {
               parts: [
@@ -128,6 +162,7 @@ chatbotRouter.post('/message', async (req: Request, res: Response) => {
       try {
         const aiResponse = await fetch('https://api.anthropic.com/v1/messages', {
           method: 'POST',
+          signal: AbortSignal.timeout(15000),
           headers: {
             'Content-Type': 'application/json',
             'x-api-key': apiKey,

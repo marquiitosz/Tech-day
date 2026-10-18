@@ -22,6 +22,7 @@ export const V2Dashboard: React.FC = () => {
   }, []);
 
   const totalEntradas = relatorio ? relatorio.totalEntradas() : ValorMonetario.zero();
+  const totalEntradasPendentes = relatorio ? relatorio.totalEntradasPendentes() : ValorMonetario.zero();
   const totalSaidas = relatorio ? relatorio.totalSaidas() : ValorMonetario.zero();
   const saldoLiquido = relatorio ? relatorio.saldoLiquido() : ValorMonetario.zero();
   const qtdTransacoes = relatorio ? relatorio.obterTransacoes().length : 0;
@@ -48,7 +49,7 @@ export const V2Dashboard: React.FC = () => {
             </UiButton>
             <UiButton
               variant="primary"
-              onClick={() => navigate('/v2/relatorios')}
+              onClick={() => navigate('/relatorios')}
             >
               Gerenciar Finanças V2
             </UiButton>
@@ -72,7 +73,11 @@ export const V2Dashboard: React.FC = () => {
             <p className="ui-metric-value text-emerald-400">
               {totalEntradas.formatar()}
             </p>
-            <span className="ui-metric-badge text-emerald-400">Entradas apuradas</span>
+            <span className="ui-metric-badge text-emerald-400">
+              {totalEntradasPendentes.emReais() > 0
+                ? `+ ${totalEntradasPendentes.formatar()} a receber`
+                : 'Entradas apuradas'}
+            </span>
           </div>
 
           <div className="ui-metric-card border-rose-500/30">
@@ -121,7 +126,7 @@ export const V2Dashboard: React.FC = () => {
             <UiButton
               variant="primary"
               className="w-full mt-5"
-              onClick={() => navigate('/v2/relatorios')}
+              onClick={() => navigate('/relatorios')}
             >
               Acessar Módulo Financeiro
             </UiButton>

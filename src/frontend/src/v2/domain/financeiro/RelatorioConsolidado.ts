@@ -18,13 +18,25 @@ export class RelatorioConsolidado {
 
   public totalEntradas(): ValorMonetario {
     return this.transacoes
-      .filter((t) => t.ehEntrada())
+      .filter((t) => t.ehEntrada() && t.status === 'CONCLUIDO')
+      .reduce((acc, curr) => acc.somar(curr.valor), ValorMonetario.zero());
+  }
+
+  public totalEntradasPendentes(): ValorMonetario {
+    return this.transacoes
+      .filter((t) => t.ehEntrada() && t.status === 'PENDENTE')
       .reduce((acc, curr) => acc.somar(curr.valor), ValorMonetario.zero());
   }
 
   public totalSaidas(): ValorMonetario {
     return this.transacoes
-      .filter((t) => t.ehSaida())
+      .filter((t) => t.ehSaida() && t.status === 'CONCLUIDO')
+      .reduce((acc, curr) => acc.somar(curr.valor), ValorMonetario.zero());
+  }
+
+  public totalSaidasPendentes(): ValorMonetario {
+    return this.transacoes
+      .filter((t) => t.ehSaida() && t.status === 'PENDENTE')
       .reduce((acc, curr) => acc.somar(curr.valor), ValorMonetario.zero());
   }
 
